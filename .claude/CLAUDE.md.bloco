@@ -33,6 +33,26 @@ Nunca implemente a partir de `spec.md` direto. Sempre passa por `plan.md` aprova
 | Testes | `specs/modulos/<mod>.md` + `specs/testes/ESTRATEGIA.md` |
 | Decisão técnica | `specs/arquitetura/VISAO_TECNICA.md` + `specs/arquitetura/adr/` |
 
+### Cadeia de agentes
+
+| Etapa | Agente | Modelo | Escreve em código? |
+|---|---|---|---|
+| Especificar e planejar | `planejador` | opus | não |
+| Implementar | `executor` | sonnet | sim |
+| Validar | `validador` | sonnet | **não — read-only** |
+
+Regras da cadeia:
+
+1. O `executor` nunca começa sem `plan.md` aprovado pelo humano.
+2. O `validador` lê `spec.md` **antes** do código. Nunca o contrário.
+3. Divergência do plano interrompe a cadeia e volta ao `planejador` — o `executor`
+   não redesenha.
+4. Loop de correção: `validador` REPROVADO → `executor` corrige apenas os itens
+   listados → revalida. **Máximo 2 ciclos.** No terceiro, pare e escale ao humano:
+   duas rodadas sem convergir significa que o problema está na spec, não no código.
+5. Cada agente recebe caminhos de arquivo, não conteúdo colado. Os artefatos estão
+   em disco justamente para isso.
+
 ### Ao delegar para subagente
 
 Subagente tem contexto próprio e **não herda estas regras**. Todo prompt de delegação deve

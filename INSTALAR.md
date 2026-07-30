@@ -8,6 +8,7 @@ cp -r /caminho/para/spec-base/specs .
 cp -r /caminho/para/spec-base/scripts .
 cp -r /caminho/para/spec-base/.claude/skills .claude/
 cp -r /caminho/para/spec-base/.claude/hooks .claude/
+cp -r /caminho/para/spec-base/.claude/agents .claude/
 ```
 
 Se `.claude/` ainda não existir: `mkdir -p .claude`.
@@ -50,7 +51,14 @@ echo '{"tool_input":{"file_path":"'"$PWD"'/src/foo.ts"}}' | \
 | Emergência | `git commit --no-verify` não ajuda aqui — desligue o hook em `settings.json` |
 | Voltar ao normal | `echo "nenhuma" > specs/ACTIVE.md` |
 
-## 4. Versionar
+## 4. Cadeia de agentes
+
+Os três subagentes (`planejador` opus · `executor` sonnet · `validador` sonnet read-only)
+ficam disponíveis assim que você reiniciar o Claude Code. Confira com `/agents`.
+
+O `validador` lê a spec antes do código de propósito — não dê a ele `Write` nem `Edit`.
+
+## 5. Versionar
 
 ```bash
 git add specs scripts .claude CLAUDE.md
