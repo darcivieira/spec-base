@@ -12,9 +12,12 @@ Ele clona sem histórico, copia `specs/`, `scripts/`, `.claude/{skills,hooks,age
 `.spec-base.json`, dá `chmod +x` nos hooks e some. **Nenhum vínculo de git**: nada de submódulo,
 nada de `.git` estranho no seu projeto.
 
-O que **não** é copiado: `INSTALAR.md`, `BOOTSTRAP.md`, `ATUALIZAR.md`,
+O que **não** é copiado: `README.md`, `INSTALAR.md`, `BOOTSTRAP.md`, `ATUALIZAR.md`,
 `MIGRAR-IDENTIFICADOR.md`, `AGENTS.md.exemplo` e `.github/`. São documentação do kit, não do seu
 projeto — o script imprime os links no fim.
+
+**O `README.md` do seu projeto está a salvo.** A cópia é por lista explícita, não por exclusão:
+arquivo novo na raiz do kit não vaza para o destino por esquecimento.
 
 **Nada é sobrescrito em silêncio.** Arquivo que já existe e difere vira `<nome>.novo`, e a lista
 sai no relatório para você resolver com `diff`. Rodar de novo num projeto que já tem a base é o

@@ -7,9 +7,12 @@
 #   sh -c "$(gh api repos/darcivieira/spec-base/contents/install.sh --jq .content | base64 -d)"
 #
 # O que ele copia: specs/ · scripts/ · .claude/{skills,hooks,agents} · .spec-base.json
-# O que ele NÃO copia: INSTALAR.md, BOOTSTRAP.md, ATUALIZAR.md, MIGRAR-IDENTIFICADOR.md,
-# AGENTS.md.exemplo, .github/ — são documentação do kit, não do seu projeto. Os caminhos
-# para eles ficam impressos no fim.
+# O que ele NÃO copia: README.md, INSTALAR.md, BOOTSTRAP.md, ATUALIZAR.md,
+# MIGRAR-IDENTIFICADOR.md, AGENTS.md.exemplo, .github/ — são documentação do kit, não do seu
+# projeto. Os caminhos para eles ficam impressos no fim.
+#
+# A cópia é por lista explícita, não por exclusão: arquivo novo na raiz deste repositório não
+# vaza para o projeto de destino por esquecimento. O README.md do seu projeto está a salvo.
 #
 # Nada é sobrescrito em silêncio: arquivo que já existe e difere vira <nome>.novo, e a lista
 # aparece no relatório final para você resolver.
