@@ -163,4 +163,7 @@ Coisas que esta base **não** resolve, ditas aqui para você não descobrir depo
 
 ## Licença
 
-<<PREENCHER: escolha uma licença, ou declare que o repositório é privado.>>
+MIT — ver [LICENSE](LICENSE). Use, adapte e redistribua à vontade, inclusive comercialmente.
+
+A licença cobre este kit. Ela **não** é copiada para o projeto onde você instalar: a base entra
+como conteúdo seu, sob a licença que o seu projeto já tiver.

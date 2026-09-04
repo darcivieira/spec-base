@@ -7,7 +7,7 @@
 #   sh -c "$(gh api repos/darcivieira/spec-base/contents/install.sh --jq .content | base64 -d)"
 #
 # O que ele copia: specs/ · scripts/ · .claude/{skills,hooks,agents} · .spec-base.json
-# O que ele NÃO copia: README.md, INSTALAR.md, BOOTSTRAP.md, ATUALIZAR.md,
+# O que ele NÃO copia: README.md, LICENSE, INSTALAR.md, BOOTSTRAP.md, ATUALIZAR.md,
 # MIGRAR-IDENTIFICADOR.md, AGENTS.md.exemplo, .github/ — são documentação do kit, não do seu
 # projeto. Os caminhos para eles ficam impressos no fim.
 #
