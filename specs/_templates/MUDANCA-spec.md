@@ -1,5 +1,5 @@
 ---
-id: NNN-slug
+id: <id>                  # formato em governanca/02-convencoes.md
 titulo: <título curto>
 classificacao: 🟡 YELLOW   # 🟡 YELLOW | 🔴 RED
 status: rascunho          # rascunho | aprovada | em-implementacao | concluida
@@ -8,7 +8,7 @@ modulos: []
 telas: []
 ---
 
-# NNN — <título>
+# <id> — <título>
 
 ## Problema
 <O que dói hoje. Com evidência: log, ticket, métrica, ou pedido literal do usuário.

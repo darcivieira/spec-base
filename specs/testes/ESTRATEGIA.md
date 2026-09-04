@@ -12,7 +12,7 @@ NÃO se testa — testar tudo é tão ruim quanto não testar.>>
 
 ## Regras
 
-- Todo critério de aceite de `mudancas/NNN/spec.md` vira ao menos um teste.
+- Todo critério de aceite de `mudancas/<id>/spec.md` vira ao menos um teste.
 - Bug corrigido ganha teste que falha antes da correção. Sem exceção.
 - Teste não acessa rede nem serviço externo real — use dublê.
 - Teste não depende de ordem de execução nem de estado de outro teste.

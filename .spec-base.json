@@ -1,0 +1,39 @@
+{
+  "versao": 1,
+  "identificador": {
+    "esquema": "sequencial",
+    "primario": null,
+    "fatiamento": false,
+    "rastreadores": {},
+    "espelho_obrigatorio": []
+  },
+  "guardas": {
+    "require_spec": true,
+    "guard_branch": false,
+    "dod_por_mudanca": false
+  },
+  "integracoes": {
+    "voz": "conversa",
+    "publicacao_externa": "rascunho"
+  },
+  "branches": {
+    "principal": "main",
+    "integracao": null,
+    "protegidas": [
+      "main"
+    ],
+    "tarefa": "<tipo>/<id>-<slug>"
+  },
+  "caminhos": {
+    "protegidos": [
+      "(^|/)(src|app|lib|api|packages|services)/"
+    ],
+    "livres": [
+      "(^|/)(tests?|__tests__|specs)/",
+      "\\.(test|spec)\\.[jt]sx?$",
+      "_test\\.py$"
+    ],
+    "imutaveis_apos_publicacao": [],
+    "ref_principal": "origin/main"
+  }
+}

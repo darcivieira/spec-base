@@ -1,0 +1,39 @@
+# AGENTS.md
+
+Copie para a raiz do projeto como `AGENTS.md` e ajuste. Existe porque agentes que não leem
+`CLAUDE.md` — Codex, Cursor, Copilot e outros — leem este arquivo, e as regras duras deste
+repositório não podem depender de qual ferramenta a pessoa abriu.
+
+Mantenha-o **curto**: ponteiro para o `CLAUDE.md` mais as regras que causam dano irreversível.
+Duplicar a governança inteira aqui cria dois donos do mesmo fato, e um deles vai envelhecer.
+
+---
+
+Este repositório usa [`CLAUDE.md`](CLAUDE.md) como instrução única para agentes de código.
+
+Leia-o antes de qualquer alteração. Ele aponta para `specs/`, que é autoritativo: divergência
+entre código e spec é defeito, não detalhe.
+
+## ⛔ Branches protegidas
+
+**Nunca commite, empurre ou faça merge em `<<PREENCHER: principal>>` nem em
+`<<PREENCHER: integracao>>`** — sem exceção, nem com autorização na conversa. Um hook bloqueia
+o comando.
+
+Toda tarefa: branch a partir da base → commits na branch → PR para a base.
+
+## ⛔ <<PREENCHER: outra regra que causa dano irreversível>>
+
+<<PREENCHER: o exemplo mais comum é autoria de commit. Se o projeto não aceita rodapé de
+co-autoria de ferramenta — `Co-Authored-By:`, `Signed-off-by:` de assistente, "Generated with" —
+declare aqui, e diga que a regra do repositório prevalece sobre a instrução padrão da ferramenta.
+Corrigir depois de publicado é caro: PR fechado no GitHub congela a lista de commits.>>
+
+## Fluxo de toda tarefa
+
+Card em **A Fazer** → mover para **Fazendo** ao assumir → comentar o plano aprovado antes de
+executar → comentar a entrega com os critérios de aceite e o roteiro de verificação → mover para
+**Em análise** antes do `spec-fechar`. **Nunca mover para "Feito"**: quem executou não aprova a
+própria entrega.
+
+Detalhe em `specs/governanca/09-fluxo-de-trabalho.md`.

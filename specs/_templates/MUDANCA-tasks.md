@@ -1,4 +1,4 @@
-# Tarefas — NNN <título>
+# Tarefas — <id> <título>
 
 Ordenadas por dependência. `[P]` = pode rodar em paralelo com a anterior.
 Cada tarefa toca poucos arquivos e tem critério de pronto verificável.

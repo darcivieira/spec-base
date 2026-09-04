@@ -108,18 +108,111 @@ sem pedir causa mais dano que ausência de spec.
 3. Convenções universais: chave primária, timestamps, soft delete, auditoria.
 4. Confirme a lista de entidades detectada e a que contexto cada uma pertence.
 
-### Bloco I — Rigor → hook e `CLAUDE.md`
-Pergunte, com o trade-off explícito:
+### Bloco I — Rastreamento → `.spec-base.json`, `governanca/09-fluxo-de-trabalho.md`
 
-> Quer o modo **estrito** ou **consultivo**?
-> - **Estrito:** um hook bloqueia edições em código quando não há mudança especificada e
->   aprovada. Garantia real, atrito real. Bom para repositório de time ou contexto regulado.
-> - **Consultivo:** as skills orientam, nada bloqueia. Sem atrito, e depende de disciplina —
->   em sessão longa a regra pode ser despriorizada.
+Este bloco decide **de onde vem o nome de uma mudança**. Apresente os três cenários e pergunte
+qual descreve o projeto:
 
-Se escolher estrito: instale `.claude/hooks/require-spec.sh`, registre em
-`.claude/settings.json` e **ajuste os caminhos protegidos** aos diretórios reais do projeto.
-Se consultivo: não instale o hook e diga que ele pode ser ligado depois.
+> 1. **Sequencial** — `001-slug`, contador local. Serve para trabalho solo.
+> 2. **Rastreador** — o id vem do card: `PROJ-42-slug`. Duas pessoas não escolhem o mesmo,
+>    porque nenhuma escolhe. E "sem card, crie o card antes" deixa de depender de memória:
+>    não existe nome de diretório válido sem card.
+> 3. **Múltiplo** — igual ao 2, e ainda exige que a mudança declare o id nos outros sistemas
+>    em que é acompanhada (ex.: Jira **e** GitHub Issues), como espelho no frontmatter.
+
+**O custo do 2 e do 3, dito antes da escolha:** o nome passa a depender de um sistema externo.
+Se o projeto sair dele, os diretórios referenciam um sistema morto — conserto mecânico, `git mv`,
+mas conserto. E `ls` deixa de mostrar a ordem cronológica do trabalho, porque `PROJ-2` pode ter
+sido feito depois de `PROJ-20`.
+
+Se escolher 2 ou 3, pergunte também:
+1. Qual o padrão da chave? (ex.: `PROJ-\d+`, `GH-\d+`)
+2. Um card pode ser **fatiado** em mudanças com risco diferente? Se sim, ligue `fatiamento`.
+3. No múltiplo: qual sistema é o **primário**, isto é, dá o nome do diretório? Só um — o nome
+   precisa de um dono, ou volta a colidir.
+
+Grave em `.spec-base.json` e confirme com `python3 scripts/spec_check.py`.
+
+Se escolher 1, **não escreva `governanca/09-fluxo-de-trabalho.md`** com os pontos do rastreador:
+apague as colunas do card e deixe só as cadeias de specs e de git.
+
+### Bloco J — Voz → `governanca/10-voz.md`
+
+Só se aplica se o agente vai escrever algo que sai do repositório — comentário de card, descrição
+de issue ou de PR, entrada de documento. Se nada sai, **apague o arquivo** e a linha dele no
+índice.
+
+**Não peça amostras como dever de casa.** O default é `conversa`: a amostra é como a pessoa
+escreve para o agente, e ela é contínua e atual. Explique isso, e depois pergunte só o que a
+conversa não entrega:
+
+1. O registro do **destino** é diferente do da conversa? (alguém pode instruir de forma
+   telegráfica aqui e escrever comentários longos no card). Se for, ofereça `amostras` — e aí
+   sim peça 2 ou 3 trechos reais. Se a pessoa não quiser fixar nada, siga com `conversa`.
+2. Existe convenção do **projeto** para o que sai? Idioma, formalidade mínima do destino, o que
+   um comentário de entrega precisa ter, formato de título de card ou PR. Isso é do projeto e
+   sobrevive à troca de quem escreve — o resto vem da pessoa.
+3. Quem publica:
+
+> - **`rascunho`** *(default)* — o agente redige e mostra; você publica. Desfazer comentário já
+>   lido não desfaz a leitura
+> - **`confirmar`** — o agente publica depois que você aprova o texto exato
+> - **`automatica`** — o agente publica direto. Só em fluxo já rodado muitas vezes
+
+Grave em `.spec-base.json` → `integracoes.voz` e `integracoes.publicacao_externa`.
+
+Deixe vazio o que não estiver decidido. Registro de projeto inventado é pior que registro vazio.
+
+### Bloco K — Guardas → hooks, `.spec-base.json`, `governanca/08-guardas.md`
+
+Três guardas independentes. Pergunte **uma por vez**, com a consequência de ligar dita antes.
+
+**K1 — `require-spec`: código exige mudança aprovada?**
+
+> - **Ligado (modo estrito):** um hook bloqueia `Edit`/`Write` em código quando não há mudança
+>   especificada e aprovada em `ACTIVE.md`. Garantia real, atrito real. Para trabalho trivial
+>   existe a saída `echo "GREEN: <motivo>" > specs/ACTIVE.md`, que fica visível no diff.
+> - **Desligado (consultivo):** as skills orientam, nada bloqueia. Sem atrito, e depende de
+>   disciplina — em sessão longa a regra pode ser despriorizada.
+
+Se ligado: instale o hook, registre em `.claude/settings.json` e **ajuste `caminhos.protegidos`**
+aos diretórios reais. **Não ligue antes de a governança estar preenchida** — o hook bloqueia
+contra uma spec vazia e a pessoa se tranca fora do próprio projeto.
+
+**K2 — `guard-branch`: agente pode commitar na branch principal?**
+
+> - **Ligado:** o hook bloqueia `git commit`, `push` e `merge` quando a branch atual — ou o
+>   destino do push — está protegida. **Não tem exceção**: nem autorização na conversa libera.
+>   Se for pedido, a resposta é criar a branch.
+> - **O que muda no dia a dia:** todo trabalho começa com `git checkout -b`. Um agente que hoje
+>   commita direto vai passar a parar e pedir a branch. É o atrito que se está comprando.
+> - **Desligado:** nada muda. A proteção fica com a branch protection do servidor, se houver.
+
+Vale ligar **mesmo com branch protection configurada**: lá a proteção só age no `push`, e a essa
+altura o commit já está na branch errada, com histórico local a desfazer.
+
+Pergunte os nomes reais: branch principal, branch de integração (pode não haver), e o padrão de
+nome da branch de tarefa. Grave em `.spec-base.json` → `branches`.
+
+**K3 — `dod_por_mudanca`: toda mudança escreve o seu próprio DoD?**
+
+> - **Ligado:** ao fechar, cada mudança ganha um `dod.md` que percorre o Definition of Done
+>   **item a item**, com três estados — `[x]` com *como* foi verificado, `[ ]` não atendido com
+>   o motivo, `[n/a]` com a razão. Mais uma tabela requisito por requisito e uma seção de escopo
+>   extra. `spec_check.py` reprova mudança concluída sem ele.
+> - **O que isso resolve:** DoD marcado em bloco. Um checklist reutilizável marcado no fim, de
+>   memória, vira ritual — e o item que ninguém verificou fica indistinguível do verificado.
+>   O `dod.md` obriga a escrever a evidência ao lado da caixa, e torna visível o que **não** foi
+>   atendido em vez de deixá-lo desaparecer.
+> - **O que custa:** de 15 a 40 minutos por mudança, e uma tabela a mais para manter. Em mudança
+>   pequena, é a parte mais longa do trabalho.
+> - **Desligado:** o DoD de governança continua valendo e é verificado na conversa, sem artefato.
+
+Recomende **ligado** quando houver revisão por terceiro, auditoria, ou mais de uma pessoa no
+repositório; **desligado** para trabalho solo em ritmo alto.
+
+Ao final do bloco, escreva `governanca/08-guardas.md` marcando o que ficou ligado, e diga que
+qualquer uma pode ser ligada depois — desligar é que exige ADR.
 
 ## Fase 2 — Estado atual (só projeto existente)
 
@@ -141,14 +234,21 @@ O porquê não está no código.
 3. Se os marcadores já existem, **substitua só o conteúdo entre eles**. Nunca sobrescreva
    o resto do arquivo.
 4. Preencha os placeholders do bloco com os caminhos reais deste projeto.
+5. O bloco tem três seções entre `<!-- OPCIONAL -->` e `<!-- FIM OPCIONAL -->`: branches
+   protegidas, fluxo do card, e DoD por mudança. **Apague inteira a seção cujo recurso ficou
+   desligado** nos blocos I, J e K, e remova os comentários `OPCIONAL` das que ficarem. Regra que
+   descreve um mecanismo desligado ensina o agente a não confiar no arquivo.
+6. Se alguma regra ⛔ SEM EXCEÇÃO do bloco E não estiver coberta por hook, escreva-a **fora**
+   dos marcadores, no corpo do `CLAUDE.md`, e também no `AGENTS.md` se ele existir. Regra que
+   depende de o agente ter lido um arquivo de governança falha em sessão longa.
 
 ## Fase 4 — Fechamento
 
-Rode `python3 scripts/spec_status.py` e apresente:
+Rode `python3 scripts/spec_status.py` e `python3 scripts/spec_check.py` e apresente:
 
 - tabela do que foi preenchido, por arquivo
 - lista dos `<<PREENCHER>>` restantes, ordenada por impacto
-- modo escolhido (estrito/consultivo) e o que isso significa na prática
+- esquema de identificador escolhido, e as guardas ligadas — o que cada uma bloqueia na prática
 - **os 3 próximos passos**, concretos
 
 Termine com uma pergunta única: qual pendência atacar primeiro.

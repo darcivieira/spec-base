@@ -1,0 +1,102 @@
+# Exemplo de CI. Renomeie para `ci.yml` e preencha os <<PREENCHER>>.
+#
+# O que este arquivo acrescenta a um CI comum são três padrões que custam pouco e pegam
+# falha silenciosa. Eles estão comentados no ponto em que aparecem:
+#
+#   1. job `specs` — a convenção de specs deixa de ser recomendação
+#   2. jobs separados por significado — "arch vermelho" diz outra coisa de "test vermelho"
+#   3. guarda anti-falso-verde — teste pulado é verificação que existe e não rodou
+#
+# Se o repositório não tem branch protection, o CI **avisa, não barra**: build vermelho não
+# impede merge. Isso torna o gatilho mais importante, não menos — sem ele, ninguém fica sabendo.
+
+name: CI
+
+on:
+  # A branch de integração está aqui, e não só a principal, porque é onde a integração
+  # acontece. O `push` nela pega o caso que nenhum PR pega sozinho: dois PRs que passam
+  # individualmente e quebram **juntos** no merge.
+  pull_request:
+    branches: [<<PREENCHER: integracao>>, <<PREENCHER: principal>>]
+  push:
+    branches: [<<PREENCHER: integracao>>, <<PREENCHER: principal>>]
+
+jobs:
+  # --------------------------------------------------------------------------
+  # A convenção de specs cobrada por comando — roda igual em projeto Python, Node ou Go.
+  specs:
+    name: specs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/spec_check.py --ci
+      - run: python3 scripts/spec_status.py --ci
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # <<PREENCHER: setup da stack e o comando real de lint + format --check>>
+
+  types:
+    name: types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # <<PREENCHER: comando real de type-check>>
+
+  # Job próprio de propósito, quando o projeto verifica fronteira entre módulos.
+  # Num job único seria preciso ler log para saber qual dos dois quebrou.
+  # arch:
+  #   name: arch
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: <<PREENCHER: import-linter, dependency-cruiser, go vet…>>
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+
+    # <<PREENCHER: services (banco, cache) com a MESMA imagem e versão do ambiente local.
+    # CI que testa contra outra versão testa outro sistema.>>
+    #
+    # Atenção às variáveis de ambiente que os testes de integração exigem: sem elas os
+    # testes **pulam**, o job fica verde tendo rodado dezenas de testes a menos, e ninguém
+    # percebe. É o que o passo seguinte existe para pegar.
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: suíte completa
+        run: <<PREENCHER: comando de teste, gerando relatório JUnit>>
+        # pytest:  uv run pytest --junitxml=resultado.xml
+        # vitest:  npx vitest run --reporter=junit --outputFile=resultado.xml
+
+      # O passo que impede este CI de ser decorativo. Um teste pulado aqui significa que a
+      # verificação existe e não rodou — o pior dos dois mundos, porque parece coberto.
+      - name: nenhum teste pode ter sido pulado
+        run: |
+          pulados=$(python3 -c "
+          import xml.etree.ElementTree as ET
+          raiz = ET.parse('resultado.xml').getroot()
+          suite = raiz if raiz.tag == 'testsuite' else raiz[0]
+          print(suite.get('skipped', '0'))
+          ")
+          echo "testes pulados: $pulados"
+          if [ "$pulados" != "0" ]; then
+            echo "::error::$pulados teste(s) pulado(s). No CI as dependências estão de pé — nada deveria pular."
+            exit 1
+          fi
+
+  # Reversibilidade de migration, em base limpa. Separado do job `test` porque aqui o que se
+  # prova é a ida e a volta, e um erro no meio da suíte esconderia isso.
+  # migrations:
+  #   name: migrations
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: <<PREENCHER: upgrade head>>
+  #     - run: <<PREENCHER: downgrade base>>
+  #     - run: <<PREENCHER: upgrade head de novo>>

@@ -1,6 +1,6 @@
 ---
 name: spec-plano
-description: Gera plan.md e tasks.md a partir de uma spec de mudança já aprovada em specs/mudancas/NNN-*/. Use depois da skill spec-nova, quando o usuário pedir o plano técnico, o desenho da solução, ou a quebra em tarefas de uma mudança já especificada. Use também quando o usuário disser que aprovou a spec e quer partir para o desenho.
+description: Gera plan.md e tasks.md a partir de uma spec de mudança já aprovada em specs/mudancas/<id>/. Use depois da skill spec-nova, quando o usuário pedir o plano técnico, o desenho da solução, ou a quebra em tarefas de uma mudança já especificada. Use também quando o usuário disser que aprovou a spec e quer partir para o desenho.
 ---
 
 # spec-plano
@@ -9,7 +9,7 @@ Converte requisito em desenho técnico e tarefas ordenadas. Aqui entra o **como*
 
 ## Pré-condições
 
-- `specs/mudancas/NNN-*/spec.md` existe, com `status: aprovada`
+- `specs/mudancas/<id>/spec.md` existe, com `status: aprovada`
 - Nenhum `[PRECISA DECISÃO]` pendente
 
 Se qualquer uma falhar, pare e diga qual.

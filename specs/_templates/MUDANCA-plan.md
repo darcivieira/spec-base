@@ -1,4 +1,4 @@
-# Plano — NNN <título>
+# Plano — <id> <título>
 
 > Só existe depois que `spec.md` está aprovada. Aqui entra o **como**.
 
