@@ -2,26 +2,70 @@
 # Bloqueia edições em código de produção quando não há mudança especificada e aprovada.
 # Registrar em .claude/settings.json sob hooks.PreToolUse, matcher "Edit|Write".
 # Exit 0 = permite | Exit 2 = nega e devolve a mensagem ao agente.
+#
+# Configuração em .spec-base.json -> caminhos. Sem o arquivo, valem os defaults abaixo.
 
 set -uo pipefail
 input=$(cat)
 
-# --- AJUSTE AQUI: caminhos de código protegidos ------------------------------
+RAIZ="${CLAUDE_PROJECT_DIR:-.}"
+CONFIG="$RAIZ/.spec-base.json"
+
+# --- defaults, usados quando não há .spec-base.json ou jq ---------------------
 PROTEGIDOS_REGEX='(^|/)(src|app|lib|api|packages|services)/'
+LIVRES_REGEX='(^|/)(tests?|__tests__|specs)/|\.(test|spec)\.[jt]sx?$|_test\.py$'
+IMUTAVEIS_REGEX=''
+REF_PRINCIPAL='origin/main'
+
+if [ -f "$CONFIG" ] && command -v jq >/dev/null 2>&1; then
+  # As listas são unidas por "|" e viram uma alternância de regex estendida.
+  v=$(jq -r '(.caminhos.protegidos // []) | join("|")' "$CONFIG" 2>/dev/null)
+  [ -n "$v" ] && [ "$v" != "null" ] && PROTEGIDOS_REGEX="$v"
+  v=$(jq -r '(.caminhos.livres // []) | join("|")' "$CONFIG" 2>/dev/null)
+  [ "$v" != "null" ] && LIVRES_REGEX="$v"
+  v=$(jq -r '(.caminhos.imutaveis_apos_publicacao // []) | join("|")' "$CONFIG" 2>/dev/null)
+  [ "$v" != "null" ] && IMUTAVEIS_REGEX="$v"
+  v=$(jq -r '.caminhos.ref_principal // ""' "$CONFIG" 2>/dev/null)
+  [ -n "$v" ] && [ "$v" != "null" ] && REF_PRINCIPAL="$v"
+fi
 # -----------------------------------------------------------------------------
 
 path=$(printf '%s' "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty' 2>/dev/null)
 [ -z "$path" ] && exit 0
 
-rel="${path#"$CLAUDE_PROJECT_DIR"/}"
+rel="${path#"$RAIZ"/}"
 
-# Fora do código protegido: libera (specs, docs, config, testes)
+# --- Arquivos imutáveis depois de publicados ---------------------------------
+# Criar é livre — é o fluxo normal de trabalho. Editar o que JÁ RODOU em outro ambiente é
+# o caso irrecuperável: deixa ambientes em estados divergentes, sem caminho de volta.
+#
+# Proxy de "publicado": o arquivo já existe na ref principal, de onde saem os deploys.
+# É proxy, não a verdade — migration aplicada só no ambiente local de alguém não é detectada.
+#
+# Nota deliberada: proteger o diretório inteiro NÃO funciona. Se toda tarefa de banco dispara
+# o bloqueio, o controle vira ruído e perde a proteção real.
+if [ -n "$IMUTAVEIS_REGEX" ] && printf '%s' "$rel" | grep -Eq "$IMUTAVEIS_REGEX"; then
+  if git -C "$RAIZ" cat-file -e "$REF_PRINCIPAL:$rel" 2>/dev/null; then
+    cat >&2 <<MSG
+BLOQUEADO: '$rel' já está publicado em $REF_PRINCIPAL.
+Editar arquivo que outros ambientes já aplicaram deixa esses ambientes em estados
+divergentes, sem caminho de volta.
+
+Crie um arquivo novo. Esta regra é ⛔ SEM EXCEÇÃO — nem a declaração GREEN a libera.
+Ver specs/governanca/08-guardas.md e 03-limites-agente.md.
+MSG
+    exit 2
+  fi
+  exit 0   # ainda não publicado nesta branch: livre
+fi
+
+# Fora do código protegido: libera (specs, docs, config)
 printf '%s' "$rel" | grep -Eq "$PROTEGIDOS_REGEX" || exit 0
 
-# Testes e specs são sempre liberados
-printf '%s' "$rel" | grep -Eq '(^|/)(tests?|__tests__|specs)/|\.(test|spec)\.[jt]sx?$|_test\.py$' && exit 0
+# Caminhos sempre liberados (testes, specs)
+[ -n "$LIVRES_REGEX" ] && printf '%s' "$rel" | grep -Eq "$LIVRES_REGEX" && exit 0
 
-SPECS="${CLAUDE_PROJECT_DIR:-.}/specs"
+SPECS="$RAIZ/specs"
 ACTIVE="$SPECS/ACTIVE.md"
 
 if [ ! -f "$ACTIVE" ]; then

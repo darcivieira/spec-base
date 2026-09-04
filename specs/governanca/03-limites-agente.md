@@ -52,6 +52,36 @@ Nunca execute sem um "pode ir" literal do humano nesta conversa.
 
 ---
 
+## ⛔ SEM EXCEÇÃO — nenhuma autorização em conversa libera
+
+O nível acima do RED, e a diferença é exatamente uma: **RED espera um "pode ir" literal; isto não
+espera nada.** Se for pedido na conversa, a resposta não é executar com ressalva — é apontar a
+regra e oferecer o caminho alternativo.
+
+Existe porque algumas ações não têm desfazer barato, e "o humano autorizou" não reconstrói o que
+foi perdido. Uma autorização dada em dez segundos não é proporcional a um estrago que leva dias.
+
+- **Commitar, empurrar ou fazer merge direto em branch protegida.** A saída é criar a branch.
+  Com `guard_branch` ligado, o hook bloqueia o comando de qualquer forma
+- **Editar arquivo já publicado que outros ambientes já aplicaram** — migration é o caso típico.
+  A saída é criar um arquivo novo. Nem a exceção `GREEN:` libera
+- **Apagar arquivo versionado de migration, ou reescrever histórico já publicado**
+  (`git push --force`, `rebase` de branch compartilhada, `reset --hard` sobre trabalho de outro)
+
+<<PREENCHER: itens ⛔ específicos deste projeto. O teste para saber se algo pertence aqui e não
+ao RED: **se o humano autorizasse agora, e desse errado, dava para desfazer?** Se a resposta é
+não, ou "só refazendo o trabalho de outra pessoa", é ⛔.
+
+Candidatos frequentes: rodapé de co-autoria de ferramenta em commit ou PR — corrigir depois de
+publicado é caro, porque PR fechado no GitHub congela a lista de commits e não pode ser apagado;
+tocar em fixture com dado real; desativar verificação de segurança do CI.>>
+
+> Estes itens **não vivem só aqui**. Regra que depende de o agente ter lido este arquivo é regra
+> que falha em sessão longa. O que couber em mecanismo vira hook ([08-guardas](08-guardas.md));
+> o que não couber, vira linha no `CLAUDE.md` e no `AGENTS.md`, onde é lido sempre.
+
+---
+
 ## Protocolo de bloqueio
 
 Ao identificar YELLOW ou RED, **pare antes de editar** e responda no formato:
@@ -64,3 +94,14 @@ PRÓXIMO PASSO: rodar a skill `spec-nova` para especificar antes de implementar
 
 Se o humano pedir para pular a spec, isso é permitido — mas registre no commit
 `[spec-skip]` e o motivo. Nunca pule silenciosamente.
+
+Para item ⛔ o formato é outro, porque não há próximo passo negociável:
+
+```
+CLASSIFICAÇÃO: ⛔ SEM EXCEÇÃO
+MOTIVO: commit direto em `main`
+NÃO VOU FAZER, mesmo autorizado. Alternativa: git checkout -b <tipo>/<id>-<slug>
+```
+
+Se o humano insistir, repita a alternativa uma vez e pare. Insistência não converte ⛔ em RED —
+mas o humano sempre pode executar o comando ele mesmo, e isso é decisão dele, não sua.

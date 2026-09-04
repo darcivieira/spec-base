@@ -23,7 +23,58 @@ Se você precisou copiar um fato para outro arquivo, a estrutura está errada �
 - Arquivo de módulo = nome do módulo em `kebab-case`: `modulos/risk-score.md`.
 - Arquivo de tela = rota em `kebab-case`: `ui/telas/dashboard-cliente.md`.
 - ADR: `NNNN-slug-curto.md`, numeração sequencial que nunca é reaproveitada.
-- Mudança: `mudancas/NNN-slug/`, `NNN` com 3 dígitos.
+- Mudança: `mudancas/<id>/` — o formato do `<id>` vem de `identificador.esquema` em
+  [`.spec-base.json`](../../.spec-base.json). Ver abaixo.
+
+### Identificador de mudança
+
+Dono do fato: o formato vem de `identificador.esquema` em
+[`.spec-base.json`](../../.spec-base.json), e é cobrado por `python3 scripts/spec_check.py`.
+
+| Esquema | Formato | Exemplo | Quando serve |
+|---|---|---|---|
+| `sequencial` | `NNN-<slug>` | `001-login-por-email` | Trabalho solo. Um contador local basta |
+| `rastreador` | `<chave>-<slug>` | `PROJ-42-login-por-email` | Duas ou mais pessoas |
+| `multiplo` | `<chave do primário>-<slug>` + espelho no frontmatter | `PROJ-42-login-por-email` | Controle em dois sistemas |
+
+Com `fatiamento` ligado, um card partido vira `<chave>-<fatia>-<slug>` — `PROJ-42-1-...`,
+`PROJ-42-2-...`. O número é o da **fatia**, não a chave da subtarefa: a chave vem do contador
+global do rastreador e não diz nada sobre ordem. E como o número só aparece quando houve
+fatiamento, **a presença dele já informa** que o card foi partido.
+
+**Por que o sequencial não escala além de uma pessoa:** o número é escolhido por quem cria o
+diretório, olhando o próprio checkout. Dois trabalhos iniciados em paralelo escolhem `004` cada
+um, e a colisão não aparece na criação — aparece **no merge**, quando os dois já têm spec, plano,
+tarefas e commits amarrados ao nome. Nos outros dois esquemas ninguém escolhe o número, então
+ninguém colide.
+
+**O que se paga nos esquemas com rastreador:**
+
+- O nome depende de um sistema externo. Se o projeto sair dele, os diretórios referenciam um
+  sistema morto — conserto mecânico, `git mv`, mas conserto
+- `ls` deixa de mostrar a ordem cronológica: `PROJ-2` pode ter sido feito depois de `PROJ-20`.
+  A ordem fica com o campo `criada:` e com o git
+- Numa fatia, `grep -r <chave da subtarefa>` **não acha o diretório** — o nome carrega
+  `PROJ-42-2`, não a chave da subtarefa. Quem tropeçar nisso vai achar que é bug; não é.
+  O campo de espelho no frontmatter cobre a busca
+
+**Frontmatter.** No esquema `rastreador`, a spec declara o card. No `multiplo`, declara também
+cada espelho listado em `espelho_obrigatorio` — sem isso o `spec_check` reprova:
+
+```yaml
+card: PROJ-42
+subtarefa: PROJ-58     # só quando houve fatiamento
+issue: GH-340          # espelho, no esquema multiplo
+```
+
+`python3 scripts/spec_check.py --relacionar` imprime a tabela mudança ↔ card ↔ issue. É o
+inventário que um projeto com controle em dois sistemas normalmente não tem em lugar nenhum.
+
+> **A numeração de ADR não segue esta regra** e é sempre sequencial, em qualquer esquema: um ADR
+> nasce de uma decisão, e uma decisão atravessa cards. Alguém vai querer uniformizar as duas —
+> `spec_check` reprova quem tentar.
+
+### Convenções de código
 
 <<PREENCHER: convenções de código do projeto — casing por linguagem, ordem de imports,
 formato de commit, padrão de branch, sufixos obrigatórios (Service, Repository, Hook, etc.)>>

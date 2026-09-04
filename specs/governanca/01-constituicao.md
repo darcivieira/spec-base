@@ -20,12 +20,27 @@ se uma linha aqui não descreve o código real, ela está errada e deve ser corr
 
 ## Invariantes técnicos
 
-<<PREENCHER: 5 a 10 regras concretas e verificáveis, com caminhos reais. Exemplos do formato:
-- A camada de domínio não importa nada de `infra/` nem de framework web.
-- Toda escrita em banco passa por repositório; nenhum acesso direto a ORM fora de `repositories/`.
-- Nenhum componente de UI faz fetch direto; dados entram por props ou por hook de dados dedicado.
-- Toda rota exposta declara schema de entrada e de saída; sem `dict` solto ou `any`.
-- Migrations são a única forma de alterar schema; nenhum DDL manual.
+**Todo invariante termina dizendo onde é verificado.** Um invariante sem método de verificação
+é um desejo: ninguém sabe se ele ainda vale, e a primeira violação passa em silêncio. Se você não
+consegue nomear o que o checaria — um linter, um teste, um `grep` no CI, uma consulta ao banco —
+a regra pertence a `02-convencoes.md`, não aqui.
+
+Vale também "verificado em revisão de PR". É o método mais fraco, e escrevê-lo explicitamente é
+melhor que fingir que existe automação.
+
+<<PREENCHER: 5 a 10 regras concretas, com caminhos reais e método de verificação em cada uma.
+Exemplos do formato:
+
+1. **A camada de domínio não importa nada de `infra/` nem de framework web.**
+   *Verificado por `<linter de import>` no CI.*
+2. **Toda escrita em banco passa por repositório; nenhum acesso direto a ORM fora de
+   `repositories/`.** *Verificado por grep no CI.*
+3. **Nenhum componente de UI faz fetch direto; dados entram por props ou por hook dedicado.**
+   *Verificado por regra de ESLint.*
+4. **Toda rota exposta declara schema de entrada e de saída; sem `dict` solto ou `any`.**
+   *Verificado por type-check e por teste de contrato.*
+5. **Migrations são a única forma de alterar schema; nenhum DDL manual.**
+   *Verificado por `upgrade`/`downgrade` em base limpa no CI.*
 >>
 
 ## Limites de escopo

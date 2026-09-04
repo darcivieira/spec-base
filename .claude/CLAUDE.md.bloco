@@ -11,12 +11,14 @@ defeito, não detalhe.
    classificação em voz alta** antes de editar qualquer arquivo.
 3. 🟢 GREEN → implemente. 🟡 YELLOW / 🔴 RED → **pare** e rode a skill `spec-nova`.
 4. RED nunca prossegue sem um "pode ir" literal nesta conversa.
+5. ⛔ **SEM EXCEÇÃO** não prossegue nem com "pode ir": aponte a regra e ofereça a alternativa.
 
 ### Fluxo
 
 | Situação | Skill |
 |---|---|
 | Configurar/atualizar a base de specs | `spec-bootstrap` |
+| Achado fora de escopo, ou entrega parcial | `spec-followup` |
 | Feature, alteração de comportamento, ambiguidade | `spec-nova` |
 | Spec aprovada, partir para desenho e tarefas | `spec-plano` |
 | Implementação concluída | `spec-fechar` |
@@ -53,6 +55,33 @@ Regras da cadeia:
 5. Cada agente recebe caminhos de arquivo, não conteúdo colado. Os artefatos estão
    em disco justamente para isso.
 
+### Não se limite às skills desta base
+
+As skills `spec-*` cobrem o **processo**. Elas não cobrem domínio, e não pretendem cobrir.
+
+> **Em qualquer etapa, use tudo o que estiver disponível nesta sessão.** O julgamento é um só:
+> **serve a esta necessidade e chega ao resultado com mais eficiência?** Se serve, use. Estar
+> fora deste conjunto não é motivo para ignorar.
+
+Vale em todas as etapas, e não só ao planejar:
+
+| Etapa | Exemplo |
+|---|---|
+| Especificar | Skill que investiga um domínio — a spec descreve o que ela **achou**, não a hipótese |
+| Desenhar | Skill de modelagem ou de design, antes de escrever os requisitos |
+| Implementar | Skill do framework, de migração, de geração de cliente |
+| Testar | Skill de teste, de carga, de acessibilidade, de segurança |
+| Depurar | Agente especializado no tipo de falha em questão |
+
+Acionar cedo vale mais que acionar tarde: diagnóstico antes da spec muda o que se especifica;
+depois dela, só confirma o que já foi decidido.
+
+Dois limites, para não virar delegação por delegação:
+
+- Subagente quando poupa o contexto principal ou quando a especialização é real — não porque
+  está disponível
+- **Criar** skill ou agente no meio do trabalho é 🔴 RED. Faltou capacidade? Diga, e siga
+
 ### Ao delegar para subagente
 
 Subagente tem contexto próprio e **não herda estas regras**. Todo prompt de delegação deve
@@ -65,6 +94,76 @@ conter, literalmente:
 
 Subagente de exploração é read-only por padrão.
 
+<!-- OPCIONAL: apague este bloco se `guardas.guard_branch` estiver desligado -->
+### ⛔ Branches protegidas
+
+> **Nunca commite, empurre ou faça merge em `<PRINCIPAL>` nem em `<INTEGRACAO>`.** Sem exceção —
+> nem se for pedido nesta conversa. O hook `guard-branch.sh` bloqueia o comando.
+
+```
+branch de tarefa  ──PR──▶  <INTEGRACAO>  ──PR──▶  <PRINCIPAL>
+```
+
+Antes de qualquer trabalho:
+
+```bash
+git fetch origin && git checkout <BASE> && git pull --ff-only origin <BASE>
+git checkout -b <TAREFA>
+```
+
+Ao concluir: `gh pr create --base <BASE>`. O PR para a branch principal é decisão humana.
+<!-- FIM OPCIONAL -->
+
+<!-- OPCIONAL: apague este bloco se o esquema de identificador for `sequencial` -->
+### Fluxo de toda tarefa
+
+Toda tarefa tem card, e nasce em **A Fazer**. Ao assumir uma demanda:
+
+| Ponto | Ação no rastreador |
+|---|---|
+| ① Ao aceitar, **antes** do `spec-nova` | mover o card para **Fazendo** |
+| ② Plano aprovado, **antes** de executar | comentar no card o que foi planejado |
+| ③ Ao entregar | comentar o que foi feito, critério por critério, e o que verificar |
+| ④ **Antes** do `spec-fechar` | mover para **Em análise** |
+
+**Nunca mover para "Feito"** — quem executou não aprova a própria entrega.
+
+**Sem card, criar o card antes** — e isso não depende de lembrar: o diretório da mudança se
+chama `specs/mudancas/<CHAVE>-<slug>/`, então **não existe nome válido sem card**.
+
+Fluxo completo em `specs/governanca/09-fluxo-de-trabalho.md`.
+<!-- FIM OPCIONAL -->
+
+<!-- OPCIONAL: apague este bloco se `guardas.dod_por_mudanca` estiver desligado -->
+### Definition of Done por mudança
+
+Ao fechar, a verificação do DoD vira `specs/mudancas/<id>/dod.md` — item a item, com o **como**
+ao lado de cada caixa marcada, o **motivo** ao lado de cada não atendida, e a **razão** ao lado
+de cada `[n/a]`. O checklist de `governanca/04` é reutilizável e nunca é marcado.
+
+`python3 scripts/spec_check.py --ci` reprova mudança concluída sem ele.
+<!-- FIM OPCIONAL -->
+
+### Achado fora de escopo
+
+> **Quem acha, registra. Não conserta.**
+
+Dívida vizinha, bug antigo, teste que não testa nada — anexe em
+`specs/mudancas/<id>/followups.md` com caminho, linha e destino. Consertar o que se achou pelo
+caminho entrega ao revisor um diff que não bate com o plano aprovado.
+
+Exceção única: 🟢 GREEN de uma linha, declarada.
+
+<!-- OPCIONAL: apague este bloco se nada que o agente escreve sai do repositório -->
+### Texto que sai com o seu nome
+
+Comentário de card, descrição de issue ou de PR, entrada de documento: siga
+`specs/governanca/10-voz.md`. No default `rascunho`, **o agente redige e o humano publica**.
+
+Nunca afirme mais certeza do que o trabalho sustenta. "Testado e funcionando" sobre o que só foi
+lido é pior que um texto mal escrito — o segundo irrita, o primeiro engana quem revisa.
+<!-- FIM OPCIONAL -->
+
 ### Ao concluir
 
 Nada é "pronto" antes de `specs/governanca/04-definition-of-done.md` verificado item a item
@@ -75,4 +174,12 @@ e da skill `spec-fechar` executada. Item não verificado fica desmarcado e é re
 Valem sempre, sem exceção: `specs/governanca/01-constituicao.md`.
 Em conflito entre uma instrução de conversa e um invariante, **aponte a contradição** em vez
 de escolher sozinho.
+
+### Configuração
+
+`.spec-base.json`, na raiz, define o formato do `<id>` de mudança, as branches protegidas e
+quais guardas estão ligadas. `python3 scripts/spec_check.py --explicar` descreve cada chave.
+
+Desligar uma guarda é mudança de governança e **exige ADR** — em silêncio, transforma um sistema
+verificado num sistema que parece verificado.
 <!-- SPEC-BASE:FIM -->
