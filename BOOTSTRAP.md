@@ -1,6 +1,12 @@
 # Prompt de inicialização
 
-Copie a base para a raiz do repositório, abra o Claude Code e cole **exatamente** isto:
+Instale a base na raiz do repositório:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/darcivieira/spec-base/master/install.sh | sh
+```
+
+Depois abra o Claude Code e cole **exatamente** isto:
 
 ---
 

@@ -1,6 +1,43 @@
 # Instalação
 
-## 1. Copiar para o repositório
+## 1. Instalar
+
+Um comando, a partir da raiz do seu projeto:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/darcivieira/spec-base/master/install.sh | sh
+```
+
+Ele clona sem histórico, copia `specs/`, `scripts/`, `.claude/{skills,hooks,agents}` e
+`.spec-base.json`, dá `chmod +x` nos hooks e some. **Nenhum vínculo de git**: nada de submódulo,
+nada de `.git` estranho no seu projeto.
+
+O que **não** é copiado: `INSTALAR.md`, `BOOTSTRAP.md`, `ATUALIZAR.md`,
+`MIGRAR-IDENTIFICADOR.md`, `AGENTS.md.exemplo` e `.github/`. São documentação do kit, não do seu
+projeto — o script imprime os links no fim.
+
+**Nada é sobrescrito em silêncio.** Arquivo que já existe e difere vira `<nome>.novo`, e a lista
+sai no relatório para você resolver com `diff`. Rodar de novo num projeto que já tem a base é o
+caminho de atualização.
+
+| Variável | Para quê |
+|---|---|
+| `SPEC_BASE_REF` | Instalar de outra branch ou tag |
+| `SPEC_BASE_REPO` | Instalar de um fork ou de um clone local |
+| `SPEC_BASE_YES=1` | Responder "sim" aos avisos, em automação |
+
+Sem terminal e sem `SPEC_BASE_YES`, o script **aborta** em vez de seguir sozinho. Ele avisa e
+para em dois casos: fora de repositório git, e com trabalho não commitado — porque é o commit
+anterior que faz `git checkout .` desfazer a instalação inteira se você desistir.
+
+Se o repositório for privado, o `curl` cru não alcança o `raw.githubusercontent.com`. Use o `gh`,
+que aproveita a autenticação que você já tem:
+
+```bash
+sh -c "$(gh api repos/darcivieira/spec-base/contents/install.sh --jq .content | base64 -d)"
+```
+
+### Ou copiar à mão
 
 ```bash
 # a partir da raiz do seu projeto
