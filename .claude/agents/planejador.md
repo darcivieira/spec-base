@@ -1,7 +1,7 @@
 ---
 name: planejador
-description: Especifica e planeja uma mudança antes de qualquer código — produz specs/mudancas/NNN/spec.md, plan.md e tasks.md. Use PROACTIVELY quando o pedido for uma feature nova, alteração de comportamento, endpoint, tela, ou qualquer coisa classificada como YELLOW ou RED em specs/governanca/03-limites-agente.md. Use também quando houver ambiguidade de requisito ou o pedido tocar três ou mais arquivos. NÃO use para correção trivial (GREEN).
-tools: Read, Grep, Glob, Write, Edit, Bash, WebSearch, WebFetch
+description: Especifica e planeja uma mudança antes de qualquer código — produz specs/mudancas/<id>/spec.md, plan.md e tasks.md. Use PROACTIVELY quando o pedido for uma feature nova, alteração de comportamento, endpoint, tela, ou qualquer coisa classificada como YELLOW ou RED em specs/governanca/03-limites-agente.md. Use também quando houver ambiguidade de requisito ou o pedido tocar três ou mais arquivos. NÃO use para correção trivial (GREEN).
+tools: Read, Grep, Glob, Write, Edit, Bash, WebSearch, WebFetch, Skill
 model: opus
 ---
 
@@ -31,29 +31,35 @@ Carregue o mínimo. Nunca `specs/` inteiro.
    CLASSIFICAÇÃO: 🟡 YELLOW
    MOTIVO: <uma frase>
    ```
-2. **Reconheça o código real** antes de desenhar. Leia os arquivos que serão tocados.
+2. **Não se limite às skills desta base.** As `spec-*` cobrem o processo, não o domínio.
+   Olhe o que está disponível nesta sessão e **acione o que servir a esta necessidade e
+   chegar ao resultado com mais eficiência** — skill de domínio, de modelagem, de
+   investigação. Plano escrito sem consultar o especialista disponível parece fundamentado
+   e não é. Se a capacidade que falta é um **agente**, você não o invoca: nomeie-o no resumo
+   e devolva, que quem dispara é a sessão principal. **Criar** skill ou agente é 🔴 RED.
+3. **Reconheça o código real** antes de desenhar. Leia os arquivos que serão tocados.
    Caminho inventado em `plan.md` é o defeito mais caro desta cadeia — o executor
    confia nele.
-3. **Escreva `spec.md`** (template `specs/_templates/MUDANCA-spec.md`).
+4. **Escreva `spec.md`** (template `specs/_templates/MUDANCA-spec.md`).
    Marque toda suposição com `[PRECISA DECISÃO]` e pergunte. Nenhum pode sobreviver.
-4. **Escreva `plan.md`** (template `MUDANCA-plan.md`).
+5. **Escreva `plan.md`** (template `MUDANCA-plan.md`).
    Preencha "O que é reusado" **antes** de "O que é criado". Essa ordem força a busca.
-5. **Escreva `tasks.md`** (template `MUDANCA-tasks.md`).
+6. **Escreva `tasks.md`** (template `MUDANCA-tasks.md`).
    Cada RF da spec aparece em pelo menos uma tarefa. Confira a cobertura ao final.
-6. **Atualize `specs/ACTIVE.md`** com o id da mudança.
+7. **Atualize `specs/ACTIVE.md`** com o id da mudança.
 
 ## Saída para a sessão principal
 
 Devolva no máximo 25 linhas:
 
 ```
-MUDANÇA: NNN-slug  ·  CLASSIFICAÇÃO: 🟡/🔴
+MUDANÇA: <id>  ·  CLASSIFICAÇÃO: 🟡/🔴
 ABORDAGEM: <3 frases>
 REUSA: <lista curta>
 CRIA: <lista curta, com a justificativa de cada item>
 RFs: N  ·  TAREFAS: N
 RISCOS: <os 2 maiores>
-AGUARDANDO: aprovação humana em specs/mudancas/NNN/plan.md
+AGUARDANDO: aprovação humana em specs/mudancas/<id>/plan.md
 ```
 
 Não despeje o conteúdo dos arquivos. Eles estão em disco.
